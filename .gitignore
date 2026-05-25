@@ -1,0 +1,12 @@
+# Node / Backend
+node_modules/
+.env
+
+# Mobile / Flutter (the app folder already has its own .gitignore, but including common patterns)
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Mac
+.DS_Store
