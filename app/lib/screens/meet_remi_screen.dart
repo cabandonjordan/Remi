@@ -10,8 +10,6 @@ class MeetRemiScreen extends StatefulWidget {
 }
 
 class _MeetRemiScreenState extends State<MeetRemiScreen> {
-  late AnimationController _titleController;
-
   @override
   void initState() {
     super.initState();
