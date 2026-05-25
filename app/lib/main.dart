@@ -5,6 +5,9 @@ import 'screens/camera_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/recovery_timeline_screen.dart';
+import 'screens/meet_remi_screen.dart';
+import 'screens/conversational_signup_screen.dart';
+import 'screens/welcome_back_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +24,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/meet-remi',
       routes: {
+        '/meet-remi': (context) => const MeetRemiScreen(),
+        '/conversational-signup': (context) => const ConversationalSignupScreen(),
+        '/welcome-back': (context) => const WelcomeBackScreen(),
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/dashboard': (context) => const DashboardScreen(),
