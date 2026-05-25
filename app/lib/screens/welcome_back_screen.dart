@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/remi_avatar.dart';
 
 class WelcomeBackScreen extends StatefulWidget {
   const WelcomeBackScreen({Key? key}) : super(key: key);
@@ -117,10 +116,9 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
                     ),
                 SizedBox(height: screenHeight * 0.08),
                 // Remi Avatar - Happy State
-                RemiAvatar(
-                  state: RemiAvatarState.happy,
-                  size: 160,
-                  autoAnimate: false,
+                Image.asset(
+                  'lib/assets/images/REMI-LOGO-Official.png',
+                  height: 180,
                 )
                     .animate()
                     .scale(

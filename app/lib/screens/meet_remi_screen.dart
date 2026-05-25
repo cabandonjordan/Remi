@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/remi_avatar.dart';
 
 class MeetRemiScreen extends StatefulWidget {
   const MeetRemiScreen({Key? key}) : super(key: key);
@@ -28,16 +27,14 @@ class _MeetRemiScreenState extends State<MeetRemiScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: screenHeight * 0.08),
-                    // Remi Avatar with animation
-                    RemiAvatar(
-                      state: RemiAvatarState.waving,
-                      size: 180,
-                      autoAnimate: true,
+                    SizedBox(height: screenHeight * 0.04),
+                    // Remi Logo with animation
+                    Image.asset(
+                      'lib/assets/images/REMI-LOGO-Official.png',
+                      height: 160,
                     )
                         .animate()
                         .scale(
@@ -47,10 +44,10 @@ class _MeetRemiScreenState extends State<MeetRemiScreen> {
                           curve: Curves.elasticOut,
                         )
                         .fadeIn(duration: const Duration(milliseconds: 400)),
-                    SizedBox(height: screenHeight * 0.1),
+                    SizedBox(height: screenHeight * 0.05),
                     // Greeting Text with stagger animation
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
                           Text(
@@ -92,17 +89,49 @@ class _MeetRemiScreenState extends State<MeetRemiScreen> {
                                 duration: const Duration(milliseconds: 600),
                                 curve: Curves.easeOutCubic,
                               ),
+                          const SizedBox(height: 20),
+                          // Feature cards
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              children: [
+                                _buildFeatureCard(
+                                  icon: Icons.favorite_outline,
+                                  title: 'Personalized',
+                                  subtitle: 'Tailored to your needs',
+                                  theme: theme,
+                                  delay: 400,
+                                ),
+                                const SizedBox(height: 12),
+                                _buildFeatureCard(
+                                  icon: Icons.psychology_outlined,
+                                  title: 'Supportive',
+                                  subtitle: 'Always here for you',
+                                  theme: theme,
+                                  delay: 500,
+                                ),
+                                const SizedBox(height: 12),
+                                _buildFeatureCard(
+                                  icon: Icons.lightbulb_outline,
+                                  title: 'Compassionate',
+                                  subtitle: 'Understanding your journey',
+                                  theme: theme,
+                                  delay: 600,
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.08),
+                    SizedBox(height: screenHeight * 0.02),
                   ],
                 ),
               ),
             ),
             // Button at bottom
             Padding(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -148,5 +177,76 @@ class _MeetRemiScreenState extends State<MeetRemiScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required ThemeData theme,
+    required int delay,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF7DD3C0).withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF7DD3C0).withOpacity(0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xFF7DD3C0).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: const Color(0xFF7DD3C0),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF1F3A3A),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: const Color(0xFF5A7A7A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(
+          delay: Duration(milliseconds: delay),
+          duration: const Duration(milliseconds: 600),
+        )
+        .slideX(
+          begin: 0.3,
+          end: 0,
+          delay: Duration(milliseconds: delay),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+        );
   }
 }
