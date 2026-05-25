@@ -73,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: const Icon(Icons.logout),
             tooltip: 'Sign Out',
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.pushReplacementNamed(context, '/welcome-back');
             },
           ).animate().fadeIn(duration: 700.ms, delay: 200.ms),
         ],
