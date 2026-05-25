@@ -4,6 +4,7 @@ import 'screens/chat_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
+import 'screens/recovery_timeline_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardScreen(),
         '/chat': (context) => const ChatScreen(),
         '/camera': (context) => const CameraScreen(),
+        '/timeline': (context) => const RecoveryTimelineScreen(),
       },
     );
   }

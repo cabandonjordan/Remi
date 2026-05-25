@@ -166,6 +166,16 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   );
                 },
               ),
+              const SizedBox(height: 12),
+
+              _buildQuickActionCard(
+                icon: Icons.timeline,
+                title: 'View Recovery Journey',
+                description: 'Your healing progress',
+                backgroundColor: const Color(0xF0E8D5F6),
+                accentColor: const Color(0xFF7C3AED),
+                onTap: () => Navigator.pushNamed(context, '/timeline'),
+              ),
               const SizedBox(height: 40),
             ],
           ),
