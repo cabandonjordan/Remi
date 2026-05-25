@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/remi_avatar.dart';
 
 class ConversationalSignupScreen extends StatefulWidget {
   const ConversationalSignupScreen({Key? key}) : super(key: key);
@@ -70,10 +69,9 @@ class _ConversationalSignupScreenState extends State<ConversationalSignupScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          RemiAvatar(
-            state: RemiAvatarState.thinking,
-            size: 160,
-            autoAnimate: true,
+          Image.asset(
+            'lib/assets/images/REMI-LOGO-Official.png',
+            height: 160,
           )
               .animate(onPlay: (controller) => _loadingController.forward())
               .scale(
