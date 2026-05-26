@@ -237,6 +237,25 @@ class _HealingTrackerScreenState extends State<HealingTrackerScreen> {
           setState(() {
             _selectedIndex = index;
           });
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/dashboard');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/timeline');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/camera');
+              break;
+            case 3:
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Wellness page coming soon')),
+              );
+              break;
+            case 4:
+              Navigator.pushNamed(context, '/profile');
+              break;
+          }
         },
         type: BottomNavigationBarType.fixed,
         items: const [
