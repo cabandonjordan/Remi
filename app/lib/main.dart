@@ -8,6 +8,8 @@ import 'screens/recovery_timeline_screen.dart';
 import 'screens/meet_remi_screen.dart';
 import 'screens/conversational_signup_screen.dart';
 import 'screens/welcome_back_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/healing_tracker_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
         '/chat': (context) => const ChatScreen(),
         '/camera': (context) => const CameraScreen(),
         '/timeline': (context) => const RecoveryTimelineScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/healing-tracker': (context) => const HealingTrackerScreen(),
       },
     );
   }
