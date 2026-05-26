@@ -10,12 +10,197 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedIndex = 4;
   String _selectedVoiceTone = 'Calm';
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToPage(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/dashboard');
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/timeline');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/camera');
+        break;
+      case 3:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Wellness page coming soon')),
+        );
+        break;
+      case 4:
+        // Scroll to top when profile button is clicked while on profile
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        break;
+    }
+  }
+
+  void _handleMenuTap(String menuItem) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _buildMenuDetails(menuItem),
+    );
+  }
+
+  Widget _buildMenuDetails(String menuItem) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                menuItem,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (menuItem == 'My Remi+')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Premium Features:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                _buildFeatureItem('Unlimited AI Sessions', Icons.chat),
+                _buildFeatureItem('Advanced Analytics', Icons.analytics),
+                _buildFeatureItem('Priority Support', Icons.priority_high),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5DCCB8),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'Upgrade to Premium',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else if (menuItem == 'Family Profiles')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Add family members to track their recovery together.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5DCCB8),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Family Member'),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            )
+          else if (menuItem == 'Emergency Contacts')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Keep emergency contacts updated for quick access.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5DCCB8),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit Contacts'),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(String feature, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: const Color(0xFF5DCCB8), size: 20),
+          const SizedBox(width: 12),
+          Text(feature, style: const TextStyle(fontSize: 14)),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,7 +223,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.settings, size: 28),
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Settings page coming soon')),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -63,6 +252,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: const Color(0xFF5DCCB8),
                               width: 8,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF5DCCB8).withOpacity(0.2),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              ),
+                            ],
                           ),
                           child: Container(
                             decoration: BoxDecoration(
@@ -88,6 +284,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               color: const Color(0xFF5DCCB8),
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF5DCCB8).withOpacity(0.3),
+                                  blurRadius: 10,
+                                ),
+                              ],
                             ),
                             padding: const EdgeInsets.all(12),
                             child: const Icon(
@@ -99,35 +301,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
                     // Wellness Consistency
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.favorite,
-                          color: Color(0xFF5DCCB8),
-                          size: 24,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0F8F4),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFA8D5BA),
+                          width: 1,
                         ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          '90%',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.favorite,
+                            color: Color(0xFF5DCCB8),
+                            size: 28,
                           ),
-                        ),
-                      ],
-                    ),
-                    const Text(
-                      'Wellness Consistency',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '90%',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF5DCCB8),
+                                ),
+                              ),
+                              const Text(
+                                'Wellness Consistency',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
                     // User Info
                     const Text(
@@ -196,21 +415,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.emoji_events,
                       title: 'My Remi+',
                       subtitle: 'Manage Subscription',
-                      onTap: () {},
+                      onTap: () => _handleMenuTap('My Remi+'),
                     ),
                     const SizedBox(height: 12),
                     _MenuItem(
                       icon: Icons.people,
                       title: 'Family Profiles',
                       subtitle: 'Add Members',
-                      onTap: () {},
+                      onTap: () => _handleMenuTap('Family Profiles'),
                     ),
                     const SizedBox(height: 12),
                     _MenuItem(
                       icon: Icons.phone,
                       title: 'Emergency Contacts',
                       subtitle: 'Update Info',
-                      onTap: () {},
+                      onTap: () => _handleMenuTap('Emergency Contacts'),
                     ),
                   ],
                 ),
@@ -231,6 +450,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Customize how Remi communicates with you',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -241,6 +468,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             setState(() {
                               _selectedVoiceTone = 'Calm';
                             });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Voice tone set to Calm'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(width: 12),
@@ -251,6 +484,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             setState(() {
                               _selectedVoiceTone = 'Cheerful';
                             });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Voice tone set to Cheerful'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(width: 12),
@@ -261,6 +500,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             setState(() {
                               _selectedVoiceTone = 'Professional';
                             });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Voice tone set to Professional'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -276,11 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onTap: _navigateToPage,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF5DCCB8),
         unselectedItemColor: Colors.grey,
@@ -330,6 +571,13 @@ class _AchievementBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFA8D5BA),
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFA8D5BA).withOpacity(0.2),
+                blurRadius: 12,
+                spreadRadius: 1,
+              ),
+            ],
           ),
           child: Icon(
             icon,
@@ -374,15 +622,26 @@ class _MenuItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFE8E8E8),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
                 color: const Color(0xFFA8D5BA),
                 shape: BoxShape.circle,
@@ -405,6 +664,7 @@ class _MenuItem extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: const TextStyle(
@@ -447,6 +707,15 @@ class _VoiceToneButton extends StatelessWidget {
               color: isSelected ? const Color(0xFF5DCCB8) : Colors.grey[300]!,
             ),
             borderRadius: BorderRadius.circular(24),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF5DCCB8).withOpacity(0.2),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,

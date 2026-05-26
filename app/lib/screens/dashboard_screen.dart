@@ -379,6 +379,27 @@ class _DashboardScreenState extends State<DashboardScreen>
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Colors.teal.shade400,
           unselectedItemColor: Colors.grey.shade400,
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                // Already on home
+                break;
+              case 1:
+                Navigator.pushNamed(context, '/timeline');
+                break;
+              case 2:
+                Navigator.pushNamed(context, '/camera');
+                break;
+              case 3:
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Insights page coming soon')),
+                );
+                break;
+              case 4:
+                Navigator.pushNamed(context, '/profile');
+                break;
+            }
+          },
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
