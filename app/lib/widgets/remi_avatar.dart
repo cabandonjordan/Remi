@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum RemiAvatarState { waving, resting, happy, thinking }
+enum RemiAvatarState { waving, resting, happy, thinking, alert }
 
 class RemiAvatar extends StatefulWidget {
   final RemiAvatarState state;
@@ -213,6 +213,12 @@ class _RemiAvatarState extends State<RemiAvatar> with TickerProviderStateMixin {
         return Icon(
           Icons.sentiment_neutral,
           size: size * 0.25,
+          color: Colors.white,
+        );
+      case RemiAvatarState.alert:
+        return Icon(
+          Icons.warning_amber_rounded,
+          size: size * 0.26,
           color: Colors.white,
         );
     }
