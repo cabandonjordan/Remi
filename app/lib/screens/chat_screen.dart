@@ -171,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               child: Row(
                 children: [
                   Icon(
-                    _lockAdviceToEmergency ? Icons.shield_alert : Icons.info_outline,
+                    _lockAdviceToEmergency ? Icons.warning_amber_rounded : Icons.info_outline,
                     color: _lockAdviceToEmergency ? Colors.red : Colors.orange,
                     size: 20,
                   ),
