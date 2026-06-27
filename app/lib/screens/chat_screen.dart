@@ -1,4 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:app/widgets/remi_avatar.dart';
+
+enum _TriageLevel { normal, caution, urgent, emergency }
+
+class _TriageSignal {
+  const _TriageSignal({
+    required this.level,
+    required this.reason,
+    required this.message,
+    required this.keywords,
+  });
+
+  final _TriageLevel level;
+  final String reason;
+  final String message;
+  final List<String> keywords;
+}
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -11,11 +28,13 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   late AnimationController _listeningController;
   final TextEditingController _messageController = TextEditingController();
   bool _isPanicMode = false;
+  bool _lockAdviceToEmergency = false;
+  _TriageSignal? _latestTriageSignal;
 
   final List<Map<String, dynamic>> _messages = [
     {
       'type': 'remi',
-      'text': 'Hi! I noticed you were up late last night. How is your energy level today?',
+      'text': 'Hi! I can help monitor how you are doing. Tell me about your pain, swelling, temperature, or any wound changes.',
       'timestamp': DateTime.now().subtract(const Duration(minutes: 2)),
     },
   ];
@@ -39,9 +58,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   void _sendMessage(String text) {
     if (text.isEmpty) return;
 
-    // Check for panic words
-    final panicWords = ['scared', 'panic', 'dying', 'help', 'emergency'];
-    final hasPanicWords = panicWords.any((word) => text.toLowerCase().contains(word));
+    final triage = _triageText(text);
 
     setState(() {
       _messages.add({
@@ -49,7 +66,9 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         'text': text,
         'timestamp': DateTime.now(),
       });
-      _isPanicMode = hasPanicWords;
+      _latestTriageSignal = triage;
+      _isPanicMode = triage.level != _TriageLevel.normal;
+      _lockAdviceToEmergency = triage.level == _TriageLevel.emergency;
       _messageController.clear();
     });
 
@@ -59,9 +78,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         setState(() {
           _messages.add({
             'type': 'remi',
-            'text': _isPanicMode
-                ? 'I sense you\'re worried. Let\'s take a moment together. Would you like to do a quick breathing exercise?'
-                : 'I hear you. Let me help you understand what\'s happening.',
+            'text': _buildAssistantReply(triage),
             'timestamp': DateTime.now(),
           });
         });
@@ -71,41 +88,72 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final avatarState = _lockAdviceToEmergency
+        ? RemiAvatarState.alert
+        : _isPanicMode
+            ? RemiAvatarState.thinking
+            : RemiAvatarState.happy;
+
     return Scaffold(
-      backgroundColor: _isPanicMode ? const Color(0xFFFFF3E0) : const Color(0xFFFAF9F6),
+      backgroundColor: _lockAdviceToEmergency
+          ? const Color(0xFFFFF4F0)
+          : _isPanicMode
+              ? const Color(0xFFFFF8E8)
+              : const Color(0xFFFAF9F6),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: _isPanicMode ? Colors.orange.shade200 : Colors.transparent,
+        backgroundColor: _lockAdviceToEmergency
+            ? Colors.red.shade200
+            : _isPanicMode
+                ? Colors.orange.shade200
+                : Colors.transparent,
         title: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.teal.shade300, Colors.teal.shade100],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: ScaleTransition(
-                  scale: Tween(begin: 0.8, end: 1.2).animate(
-                    CurvedAnimation(parent: _listeningController, curve: Curves.easeInOut),
-                  ),
-                  child: const Icon(Icons.favorite, size: 20, color: Colors.white),
-                ),
-              ),
+            RemiAvatar(
+              size: 40,
+              state: avatarState,
+              autoAnimate: true,
             ),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               'Remi',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: _lockAdviceToEmergency ? Colors.red.shade900 : null,
+              ),
             ),
           ],
         ),
       ),
       body: Column(
         children: [
+          if (_latestTriageSignal != null && _latestTriageSignal!.level != _TriageLevel.normal)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              color: _lockAdviceToEmergency ? Colors.red.shade100 : Colors.orange.shade100,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    _lockAdviceToEmergency ? Icons.emergency : Icons.info_outline,
+                    color: _lockAdviceToEmergency ? Colors.red.shade700 : Colors.orange.shade700,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _latestTriageSignal!.message,
+                      style: TextStyle(
+                        color: _lockAdviceToEmergency ? Colors.red.shade900 : Colors.orange.shade900,
+                        fontSize: 13,
+                        height: 1.45,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -119,15 +167,26 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           if (_isPanicMode)
             Container(
               padding: const EdgeInsets.all(12),
-              color: Colors.orange.shade100,
+              color: _lockAdviceToEmergency ? Colors.red.shade100 : Colors.orange.shade100,
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                  Icon(
+                    _lockAdviceToEmergency ? Icons.shield_alert : Icons.info_outline,
+                    color: _lockAdviceToEmergency ? Colors.red : Colors.orange,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Let\'s take a moment. Try the breathing exercise below.',
-                      style: TextStyle(color: Colors.orange.shade900, fontSize: 13),
+                      _lockAdviceToEmergency
+                          ? 'Emergency guidance is active. Please seek professional medical care now and use emergency services if symptoms feel severe or unsafe.'
+                          : 'Let\'s take a moment. Try the breathing exercise below.',
+                      style: TextStyle(
+                        color: _lockAdviceToEmergency ? Colors.red.shade900 : Colors.orange.shade900,
+                        fontSize: 13,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -170,9 +229,12 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                   children: [
                     Expanded(
                       child: TextField(
+                        enabled: !_lockAdviceToEmergency,
                         controller: _messageController,
                         decoration: InputDecoration(
-                          hintText: 'Tell me how you\'re feeling...',
+                          hintText: _lockAdviceToEmergency
+                              ? 'Emergency mode is active'
+                              : 'Tell me how you\'re feeling...',
                           hintStyle: TextStyle(color: Colors.grey.shade400),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
@@ -195,11 +257,11 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(width: 12),
                     GestureDetector(
-                      onTap: () => _sendMessage(_messageController.text),
+                      onTap: _lockAdviceToEmergency ? null : () => _sendMessage(_messageController.text),
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.teal.shade400,
+                          color: _lockAdviceToEmergency ? Colors.red.shade300 : Colors.teal.shade400,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.send, color: Colors.white, size: 20),
@@ -215,8 +277,117 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     );
   }
 
+  _TriageSignal _triageText(String text) {
+    final lower = text.toLowerCase();
+    final emergencyKeywords = [
+      'chest pain',
+      'trouble breathing',
+      'shortness of breath',
+      'blue lips',
+      'passing out',
+      'fainting',
+      'severe bleeding',
+      'uncontrolled bleeding',
+      'suicidal',
+      'overdose',
+      'stroke',
+      'heart attack',
+      'call 911',
+      'emergency room',
+    ];
+    final urgentKeywords = [
+      'fever',
+      'spreading redness',
+      'foul smell',
+      'pus',
+      'worsening pain',
+      'sharp pain',
+      'hot to touch',
+      'swelling worse',
+      'not improving',
+      'pain 8',
+      'pain 9',
+      'pain 10',
+    ];
+    final cautionKeywords = [
+      'concerned',
+      'worried',
+      'nauseous',
+      'dizzy',
+      'itchy',
+      'redness',
+      'tender',
+      'sore',
+      'help',
+    ];
+
+    final emergencyHits = emergencyKeywords.where(lower.contains).toList(growable: false);
+    if (emergencyHits.isNotEmpty) {
+      return _TriageSignal(
+        level: _TriageLevel.emergency,
+        reason: 'Emergency keywords detected: ${emergencyHits.join(', ')}',
+        message:
+            'Emergency red flags detected. Please seek professional medical care now. If breathing, bleeding, chest pain, or loss of consciousness is involved, call emergency services immediately.',
+        keywords: emergencyHits,
+      );
+    }
+
+    final urgentHits = urgentKeywords.where(lower.contains).toList(growable: false);
+    if (urgentHits.length >= 2 || (urgentHits.isNotEmpty && lower.contains(RegExp(r'\b(48|72)\s*hours?\b'))) ) {
+      return _TriageSignal(
+        level: _TriageLevel.emergency,
+        reason: 'Persistent or compounding urgent symptoms detected.',
+        message:
+            'Concerning symptom trend detected over time. The assistant is locked to emergency guidance: please seek professional medical care promptly for an in-person assessment.',
+        keywords: urgentHits,
+      );
+    }
+
+    if (urgentHits.isNotEmpty) {
+      return _TriageSignal(
+        level: _TriageLevel.urgent,
+        reason: 'Urgent symptom keywords detected: ${urgentHits.join(', ')}',
+        message:
+            'Possible complication signals detected. Please contact a clinician or urgent care today, especially if the pain, swelling, or fever is getting worse.',
+        keywords: urgentHits,
+      );
+    }
+
+    final cautionHits = cautionKeywords.where(lower.contains).toList(growable: false);
+    if (cautionHits.isNotEmpty) {
+      return _TriageSignal(
+        level: _TriageLevel.caution,
+        reason: 'Caution keywords detected: ${cautionHits.join(', ')}',
+        message:
+            'I noticed signs worth watching closely. If symptoms escalate, become more painful, or do not improve, please reach out to a healthcare professional.',
+        keywords: cautionHits,
+      );
+    }
+
+    return _TriageSignal(
+      level: _TriageLevel.normal,
+      reason: 'No red-flag keywords detected.',
+      message: 'No red flags detected in the current message.',
+      keywords: const [],
+    );
+  }
+
+  String _buildAssistantReply(_TriageSignal triage) {
+    switch (triage.level) {
+      case _TriageLevel.emergency:
+        return 'I detected a serious safety signal, so I can\'t provide routine advice. Please seek professional medical care now. If this involves chest pain, trouble breathing, severe bleeding, confusion, or fainting, call emergency services immediately.';
+      case _TriageLevel.urgent:
+        return 'I\'m seeing warning signs that deserve a same-day clinician or urgent care check. If the symptoms are worsening, don\'t wait to get evaluated in person.';
+      case _TriageLevel.caution:
+        return 'I noticed something that deserves closer monitoring. If the pain, swelling, redness, or temperature increases, please contact a healthcare professional.';
+      case _TriageLevel.normal:
+        return 'I hear you. I can help track what\'s changing and compare it against your recovery timeline.';
+    }
+  }
+
   Widget _buildChatBubble(Map<String, dynamic> message) {
     final isRemi = message['type'] == 'remi';
+    final isEmergency = isRemi && _lockAdviceToEmergency;
     return Align(
       alignment: isRemi ? Alignment.centerLeft : Alignment.centerRight,
       child: Padding(
@@ -230,22 +401,30 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isRemi
-                    ? const Color(0xFFF5F5F5)
-                    : Colors.teal.shade100,
+                color: isEmergency
+                    ? Colors.red.shade50
+                    : isRemi
+                        ? const Color(0xFFF5F5F5)
+                        : Colors.teal.shade100,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(24),
                   topRight: const Radius.circular(24),
                   bottomLeft: Radius.circular(isRemi ? 0 : 24),
                   bottomRight: Radius.circular(isRemi ? 24 : 0),
                 ),
+                border: isEmergency ? Border.all(color: Colors.red.shade200, width: 1.4) : null,
               ),
               child: Text(
                 message['text'],
                 style: TextStyle(
-                  color: isRemi ? Colors.grey.shade800 : Colors.grey.shade900,
+                  color: isEmergency
+                      ? Colors.red.shade900
+                      : isRemi
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade900,
                   fontSize: 15,
                   height: 1.4,
+                  fontWeight: isEmergency ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
             ),
